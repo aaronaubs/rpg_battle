@@ -1,7 +1,7 @@
 from characters import Party, Warrior, Forest_Wolf
 from time import sleep
 
-hero_party = [Warrior("Nate", mp=0), Warrior("Tasha"), Warrior("Stacy")]
+hero_party = [Warrior("Nate"), Warrior("Tasha"), Warrior("Stacy")]
 party = Party(hero_party)
 
 enemy_party = [Forest_Wolf("Forest Wolf Leader"), Forest_Wolf(), Forest_Wolf()]
