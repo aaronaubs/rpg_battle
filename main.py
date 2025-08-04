@@ -1,10 +1,13 @@
-from characters import Party, Warrior, Forest_Wolf
+from characters import Party, Warrior, Thief, White_Mage, Black_Mage, Forest_Wolf, Forest_Goblin
 from time import sleep
 
-hero_party = [Warrior("Nate"), Warrior("Tasha"), Warrior("Stacy")]
+nate, tasha, stacy, gerald = Warrior("Nate"), Thief("Tasha"), White_Mage("Stacy"), Black_Mage("Gerald")
+
+
+hero_party = [nate, tasha, stacy, gerald]
 party = Party(hero_party)
 
-enemy_party = [Forest_Wolf("Forest Wolf Leader"), Forest_Wolf(), Forest_Wolf()]
+enemy_party = [Forest_Wolf("Forest Wolf Leader"), Forest_Wolf(), Forest_Goblin()]
 
 def battle(group, party, enemies):
     round_num = 1
@@ -16,7 +19,10 @@ def battle(group, party, enemies):
         sleep(0.5)
         for hero in party:
             if hero.is_alive():
-                hero.choose_action(enemies)
+                if isinstance(hero, White_Mage):
+                    hero.choose_action(party, enemies)
+                else:
+                    hero.choose_action(enemies)
 
         if any(enemy.is_alive() for enemy in enemies):
             print("\n----Enemy party's turn----")
