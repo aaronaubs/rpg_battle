@@ -2,18 +2,20 @@ import questionary
 from settings import exp_table
 import random
 from time import sleep
+import items
 
 
 # Character parent
 class Character:
     """Character class: Hero and Enemy subclasses"""
-    def __init__(self, name, hp, mp, attack_power):
+    def __init__(self, name, hp, mp, attack_power, magic_power):
         self.name = name
         self.hp = hp
         self.max_hp = hp
         self.mp = mp
         self.max_mp = mp
         self.attack_power = attack_power
+        self.magic_power = magic_power
 
     def is_alive(self) -> bool:
         """Monitors whether the character has HP"""
@@ -25,6 +27,8 @@ class Character:
         print(f"\n{self.name} attacks {target.name}!")
         target.take_damage(damage)
 
+    def set_name(self, name):
+        self.name = name
 
 # Heroes
 class Hero(Character):
@@ -33,10 +37,9 @@ class Hero(Character):
 
     def __init__(self, name, hp, mp, attack_power, magic_power):
         """Create an instance of the hero class"""
-        super().__init__(name, hp, mp, attack_power)
-        self.magic_power = magic_power
-        self.level = 1
+        super().__init__(name, hp, mp, attack_power, magic_power)
         self.exp = 0
+        self.level = 1
         self.max_level = 99        
 
     def take_damage(self, damage):
@@ -51,14 +54,34 @@ class Hero(Character):
             print(f"{self.name} has been defeated!") 
         sleep(0.7)     
 
-    def receive_healing(self, heal_amount):
-        """Receive healing"""
-        print(f"{self.name} heals for {heal_amount} HP!") 
-        if self.hp + heal_amount > self.max_hp:
+    def recover_hp(self, amount):
+        """Restores hp"""
+        sleep(0.7)
+        print(f"{self.name} recovers {amount} HP!") 
+        if self.hp + amount > self.max_hp:
             self.hp = self.max_hp
         else:
-            self.hp += heal_amount
+            self.hp += amount
+        sleep(0.7)
         print(f"HP is now {self.hp}")
+        sleep(0.7)
+
+    def recover_mp(self, amount):
+        """Restores mp"""
+        print(f"{self.name} recovers {amount} MP!") 
+        if self.mp + amount > self.max_mp:
+            self.mp = self.max_mp
+        else:
+            self.mp += amount
+        print(f"HP is now {self.mp}")
+
+    def use_item(self, item_name):
+        """Use item in party inventory"""
+        if item_name in Party.inventory:
+            item = items.game_items[item_name]
+            return item["func"](self)
+        else:
+            print("Item not in inventory")
 
     def gain_exp(self, enemies): 
         """Gives exp to living party members at end of battle"""
@@ -91,8 +114,11 @@ class Hero(Character):
 
 # Warrior class
 class Warrior(Hero):
-    """Warrior class"""
-    def __init__(self, name, hp=160, mp=18, attack_power=14, magic_power=4):
+    """Warrior class
+    
+    Skills: Bash
+    """
+    def __init__(self, name, hp=160, mp=18, attack_power=14, magic_power=7):
         super().__init__(name, hp, mp, attack_power, magic_power)
         self.role = "Warrior"
         self.skills = {
@@ -105,7 +131,7 @@ class Warrior(Hero):
     def bash(self, target):
         """Warrior starting skill: Bash"""
         self.mp -= self.skills["Bash"]["mp_cost"]
-        damage = round(self.attack_power * random.uniform(1.3, 1.7))
+        damage = round(self.attack_power * random.uniform(1.3, 1.65))
         print(f"\n{self.name} uses Bash on {target.name}!")
         target.take_damage(damage)
 
@@ -146,7 +172,7 @@ class Warrior(Hero):
 class Thief(Hero):
     """Thief class
     
-    Skills: Quick Strike (4 MP)
+    Skills: Quick Strike
     """
     def __init__(self, name, hp=120, mp=20, attack_power=11, magic_power=7):
         super().__init__(name, hp, mp, attack_power, magic_power)
@@ -202,7 +228,7 @@ class Thief(Hero):
 class White_Mage(Hero):
     """White Mage class
     
-    Skills: Heal (7 MP)
+    Skills: Heal
     """
     def __init__(self, name, hp=85, mp=35, attack_power=7, magic_power=14):
         super().__init__(name, hp, mp, attack_power, magic_power)
@@ -217,30 +243,31 @@ class White_Mage(Hero):
     def heal(self, target):
         """White Mage starting skill: Heal"""
         self.mp -= self.skills["Heal"]["mp_cost"]
-        heal_amount = round(self.magic_power * random.uniform(1.3, 1.7))
+        amount = round(self.magic_power * random.uniform(1.3, 1.6))
         print(f"\n{self.name} uses Heal on {target.name}!")
-        target.receive_healing(heal_amount)
+        target.recover_hp(amount)
 
     def choose_action(self, party, enemies):
         """Choose action and target to receive action"""
         if any(enemy.is_alive() for enemy in enemies):
             living_enemies = [{"name": f"{enemy.name}", "value": enemy} for enemy in enemies if enemy.is_alive()]
-            living_heroes = [hero for hero in party if hero.is_alive()]
+            living_heroes = [{"name": f"{hero.name}", "value": hero} for hero in party if hero.is_alive()]
             print(f"\n{self.name}'s turn!")
             print(f"HP: {self.hp}, MP: {self.mp}")
             sleep(0.5)
 
             while True:
+                heal_mp_cost = self.skills["Heal"]["mp_cost"]
                 print("-" * 20)
-                action = questionary.select("--Choose an action--\n", choices=["Attack", f"Heal ({self.skills['Heal']['mp_cost']} MP)", "Pass"]).ask()
+                action = questionary.select("--Choose an action--\n", choices=["Attack", f"Heal ({heal_mp_cost} MP)", "Pass"]).ask()
 
                 if action == "Attack":
                     target = questionary.select("\n--Choose a target--\n", choices=living_enemies).ask()
                     self.attack(target)
                     return
                 
-                elif action == f"Heal ({self.skills['Heal']['mp_cost']} MP)":
-                    if self.mp >= self.skills["Heal"]["mp_cost"]:
+                elif action == f"Heal ({heal_mp_cost} MP)":
+                    if self.mp >= heal_mp_cost:
                         target = questionary.select("\n--Choose a party member--\n", 
                         choices=living_heroes).ask()
                         self.heal(target)
@@ -259,7 +286,7 @@ class White_Mage(Hero):
 class Black_Mage(Hero):
     """Black Mage class
     
-    Skills: Fire (9 MP), Blizzard (8 MP), Thunder (7 MP)
+    Skills: Fire, Blizzard, Thunder
     """
     def __init__(self, name, hp=75, mp=45, attack_power=7, magic_power=13):
         super().__init__(name, hp, mp, attack_power, magic_power)
@@ -276,7 +303,7 @@ class Black_Mage(Hero):
     def fire(self, target):
         """Black Mage starting skill #1: Fire"""
         self.mp -= self.skills["Fire"]["mp_cost"]
-        damage = round(self.magic_power * random.uniform(1.3, 1.7))
+        damage = round(self.magic_power * random.uniform(1.3, 1.6))
         print(f"\n{self.name} uses Fire on {target.name}!")
         target.take_damage(damage)
 
@@ -313,28 +340,32 @@ class Black_Mage(Hero):
                     return
                 
                 elif action == "Cast Spell":
-                    if self.mp <= self.skills["Thunder"]["mp_cost"]:
+                    fire_mp_cost = self.skills["Fire"]["mp_cost"]
+                    blizzard_mp_cost = self.skills["Blizzard"]["mp_cost"]
+                    thunder_mp_cost = self.skills["Thunder"]["mp_cost"]
+
+                    if self.mp < thunder_mp_cost:
                         print(f"{self.name} doesn't have enough MP to use any spells!\n")
                         continue
                         
                     else:
                         choice = questionary.select("\n--Choose a spell--\n", 
                         choices=[
-                            f"Fire ({self.skills['Fire']['mp_cost']} MP)",
-                            f"Blizzard ({self.skills['Blizzard']['mp_cost']} MP)",
-                            f"Thunder ({self.skills['Thunder']['mp_cost']} MP)"
+                            f"Fire ({fire_mp_cost} MP)",
+                            f"Blizzard ({blizzard_mp_cost} MP)",
+                            f"Thunder ({thunder_mp_cost} MP)"
                         ]).ask()
-                        if choice == f"Fire ({self.skills['Fire']['mp_cost']}MP)" and self.mp >= self.skills["Fire"]["mp_cost"]:
+                        if choice == f"Fire ({fire_mp_cost} MP)" and self.mp >= fire_mp_cost:
                             target = questionary.select("\n--Choose a target--\n", choices=living_enemies).ask()
                             self.fire(target)
                             return
                             
-                        elif choice == f"Blizzard ({self.skills['Blizzard']['mp_cost']} MP)" and self.mp >= self.skills["Blizzard"]["mp_cost"]:
+                        elif choice == f"Blizzard ({blizzard_mp_cost} MP)" and self.mp >= blizzard_mp_cost:
                             target = questionary.select("\n--Choose a target--\n", choices=living_enemies).ask()
                             self.blizzard(target)
                             return
                             
-                        elif choice == f"Thunder ({self.skills['Thunder']['mp_cost']} MP)" and self.mp >= self.skills["Thunder"]["mp_cost"]:
+                        elif choice == f"Thunder ({thunder_mp_cost} MP)" and self.mp >= thunder_mp_cost:
                             target = questionary.select("\n--Choose a target--\n", choices=living_enemies).ask()
                             self.thunder(target)
                             return
@@ -352,27 +383,29 @@ class Black_Mage(Hero):
 class Party:
     """Class to keep track of party gold and shared inventory
     
-    Item inventory would, in a larger project, be moved to an inventory/items.py file for easier management, but for the size and scope of this project, that isn't necessary.
+    A list of game inventory items can be found in the items.py file.
     """
     gold_bag = 0
-    party_inventory = {}
+    inventory = {}
 
     def __init__(self, members):
         self.members = members
 
-    def gain_gold(self, enemies):
-        """Gives gold to party gold bag at the end of battle"""
+    @staticmethod
+    def gain_gold(enemies):
+        """Adds battle gold to party gold bag. Called at the end of battle"""
         battle_gold = 0
         for enemy in enemies:
             battle_gold += enemy.gold
-        print(f"Your party gained {battle_gold} gold!")
-        return battle_gold
+        print(f"Your party gained {battle_gold} gold!\n")
+        Party.gold_bag += battle_gold
 
+    
 # Enemies
 class Enemy(Character):
     """Enemy class with Forest Wolf subclass"""
     def __init__(self, name, level, exp, gold, hp, mp, attack_power, magic_power): 
-        super().__init__(name, hp, mp, attack_power) 
+        super().__init__(name, hp, mp, attack_power, magic_power) 
         self.level = level     
         self.exp = exp
         self.gold = gold  
@@ -390,13 +423,21 @@ class Enemy(Character):
             print(f"{self.name} has been defeated!") 
             sleep(0.7)     
 
-    def receive_healing(self, heal_amount):
-        """Receive healing"""
-        print(f"{self.name} heals for {heal_amount} HP!") 
-        if self.hp + heal_amount > self.max_hp:
+    def recover_hp(self, amount):
+        """Recovers hp"""
+        print(f"{self.name} recovers {amount} HP!") 
+        if self.hp + amount > self.max_hp:
             self.hp = self.max_hp
         else:
-            self.hp += heal_amount
+            self.hp += amount
+
+    def recover_mp(self, amount):
+        """Recovers mp"""
+        print(f"{self.name} recovers {amount} MP!") 
+        if self.mp + amount > self.max_mp:
+            self.mp = self.max_mp
+        else:
+            self.mp += amount
 
 # Forest Wolf
 class Forest_Wolf(Enemy):
@@ -409,7 +450,7 @@ class Forest_Wolf(Enemy):
     def bite(self, target):
         mp_cost = self.skills["Bite"]["mp_cost"]
         self.mp -= mp_cost
-        print(f"{self.name} bites {target.name}!")
+        print(f"{self.name} uses Bite on {target.name}!")
         damage = round(self.attack_power * random.uniform(1.2, 1.5))
         target.take_damage(damage)
 
@@ -436,7 +477,7 @@ class Forest_Goblin(Enemy):
     def slash(self, target):
         mp_cost = self.skills["Slash"]["mp_cost"]
         self.mp -= mp_cost
-        print(f"{self.name} slashes {target.name}!")
+        print(f"\n{self.name} uses Slash on {target.name}!")
         damage = round(self.attack_power * random.uniform(1.2, 1.5))
         target.take_damage(damage)
 
