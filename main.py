@@ -1,15 +1,24 @@
 from characters import Party, Warrior, Thief, White_Mage, Black_Mage, Forest_Wolf, Forest_Goblin
 from time import sleep
 
-nate, tasha, stacy, gerald = Warrior("Nate"), Thief("Tasha"), White_Mage("Stacy"), Black_Mage("Gerald")
 
 
-hero_party = [nate, tasha, stacy, gerald]
-party = Party(hero_party)
 
-enemy_party = [Forest_Wolf("Forest Wolf Leader"), Forest_Wolf(), Forest_Goblin()]
+hero_party = [
+    Warrior("Dante"),
+    Thief("Alita"),
+    White_Mage("Kara"),
+    Black_Mage("Gerald")
+]
 
-def battle(group, party, enemies):
+enemy_party = [
+    Forest_Wolf(),
+    Forest_Wolf(),
+    Forest_Goblin(),
+    Forest_Goblin()
+]
+
+def battle(party, enemies):
     round_num = 1
 
     while any(hero.is_alive() for hero in party) and any(enemy.is_alive() for enemy in enemies):
@@ -41,7 +50,7 @@ def battle(group, party, enemies):
         print("Victory!")
         print("*" * 30)
         sleep(0.5)
-        group.gold_bag += group.gain_gold(enemies)
+        Party.gain_gold(enemies)
         for hero in party:
             if hero.is_alive():
                 hero.gain_exp(enemies)
@@ -51,5 +60,8 @@ def battle(group, party, enemies):
         print("*" * 30)
         print("Your party has been defeated...")
         print("*" * 30)
-#if __name__ == "__main__":
-battle(party, hero_party, enemy_party)
+
+
+if __name__ == "__main__":
+    battle(hero_party, enemy_party)
+
