@@ -2,7 +2,6 @@ import questionary
 from settings import exp_table
 import random
 from time import sleep
-import items
 
 
 # Character parent
@@ -74,14 +73,6 @@ class Hero(Character):
         else:
             self.mp += amount
         print(f"HP is now {self.mp}")
-
-    def use_item(self, item_name):
-        """Use item in party inventory"""
-        if item_name in Party.inventory:
-            item = items.game_items[item_name]
-            return item["func"](self)
-        else:
-            print("Item not in inventory")
 
     def gain_exp(self, enemies): 
         """Gives exp to living party members at end of battle"""
