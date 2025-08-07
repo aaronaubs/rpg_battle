@@ -1,7 +1,6 @@
 from characters import Party, Warrior, Thief, White_Mage, Black_Mage, Forest_Wolf, Forest_Goblin
+import locations as loc
 from time import sleep
-
-
 
 
 hero_party = [
@@ -64,4 +63,3 @@ def battle(party, enemies):
 
 if __name__ == "__main__":
     battle(hero_party, enemy_party)
-
