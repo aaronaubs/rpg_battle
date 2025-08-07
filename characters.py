@@ -41,6 +41,10 @@ class Hero(Character):
         self.level = 1
         self.max_level = 99        
 
+    def set_name(self, name):
+        """Sets character's name"""
+        self.name = name
+
     def take_damage(self, damage):
         """Receive damage"""
         self.hp -= damage
@@ -109,7 +113,7 @@ class Warrior(Hero):
     
     Skills: Bash
     """
-    def __init__(self, name, hp=160, mp=18, attack_power=14, magic_power=7):
+    def __init__(self, name="Warrior", hp=160, mp=18, attack_power=14, magic_power=7):
         super().__init__(name, hp, mp, attack_power, magic_power)
         self.role = "Warrior"
         self.skills = {
@@ -165,7 +169,7 @@ class Thief(Hero):
     
     Skills: Quick Strike
     """
-    def __init__(self, name, hp=120, mp=20, attack_power=11, magic_power=7):
+    def __init__(self, name="Thief", hp=120, mp=20, attack_power=11, magic_power=7):
         super().__init__(name, hp, mp, attack_power, magic_power)
         self.role = "Thief"
         self.skills = {
@@ -221,7 +225,7 @@ class White_Mage(Hero):
     
     Skills: Heal
     """
-    def __init__(self, name, hp=85, mp=35, attack_power=7, magic_power=14):
+    def __init__(self, name="White Mage", hp=85, mp=35, attack_power=7, magic_power=14):
         super().__init__(name, hp, mp, attack_power, magic_power)
         self.role = "White Mage"
         self.skills = {
@@ -279,7 +283,7 @@ class Black_Mage(Hero):
     
     Skills: Fire, Blizzard, Thunder
     """
-    def __init__(self, name, hp=75, mp=45, attack_power=7, magic_power=13):
+    def __init__(self, name="Black Mage", hp=75, mp=45, attack_power=7, magic_power=13):
         super().__init__(name, hp, mp, attack_power, magic_power)
         self.role = "Black Mage"
         self.skills = {
