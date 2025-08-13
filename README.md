@@ -6,14 +6,14 @@ This project holds a small-scale turn-based RPG battle system inspired by one of
 Instead of simply playing games like this, I thought it would be beneficial and enjoyable to push my programming skills to the next level and create it myself. 
 
 // Game Features 
-1. Class Selection and Character Naming
+1. Party Member Naming
 2. Traversable Region Map
-3. Enemy Encounters
+3. Random Enemy Encounters
 4. Turn-based Battle
 5. Exp Accumulation and Level System
 6. Gold Accumulation System
 
-In a truly full-scale project, I would add a full-scale world map, fully built item system, random enemy encounters upon movement between zones, and dialogue/main quest progression through interactions with objects and NPCs, to name a few things.
+In a truly full-scale project, I would add a full-scale world map, fully built item system, and dialogue/main quest progression through interactions with objects and NPCs, to name a few things.
 
 
 // Collaborators
