@@ -92,19 +92,23 @@ class Hero(Character):
         """Checks party member's exp and executes level up if exp threshold reached"""
         if self.exp >= exp_table[self.level]:
             self.level += 1
-            print(f"{self.name} has leveled up! Lvl: {self.level - 1} >> {self.level}")
+            print("-" * 30)
+            print(f"{self.name} has leveled up! Lvl: {self.level - 1} >> {self.level}\n")
             hp_up = random.randint(20, 40)
-            self.hp += hp_up
+            self.max_hp += hp_up
             mp_up = random.randint(7, 13)
-            self.mp += mp_up
+            self.max_mp += mp_up
             attack_up = random.randint(3, 7)
             self.attack_power += attack_up
             magic_up = random.randint(3, 7)
             self.magic_power += magic_up
-            print(f"HP +{hp_up}. HP: {self.hp}")
-            print(f"MP +{mp_up}. MP: {self.mp}")
-            print(f"Attack +{attack_up}. Attack Power: {self.attack_up}")
-            print(f"Magic +{magic_up}. Magic Power: {self.magic_power}")
+            sleep(1)
+            print(f"HP +{hp_up}. HP: {self.max_hp}")
+            print(f"MP +{mp_up}. MP: {self.max_mp}")
+            print(f"Attack +{attack_up}. Attack Power: {self.attack_power}")
+            print(f"Magic +{magic_up}. Magic Power: {self.magic_power}\n")
+            print("-" * 30)
+            sleep(1)
 
 
 # Warrior class
@@ -246,7 +250,7 @@ class White_Mage(Hero):
         """Choose action and target to receive action"""
         if any(enemy.is_alive() for enemy in enemies):
             living_enemies = [{"name": f"{enemy.name}", "value": enemy} for enemy in enemies if enemy.is_alive()]
-            living_heroes = [{"name": f"{hero.name}", "value": hero} for hero in party if hero.is_alive()]
+            living_heroes = [{"name": f"{hero.name} (HP: {hero.hp})", "value": hero} for hero in party if hero.is_alive()]
             print(f"\n{self.name}'s turn!")
             print(f"HP: {self.hp}, MP: {self.mp}")
             sleep(0.5)
@@ -414,7 +418,7 @@ class Enemy(Character):
         sleep(0.7)
         print(f"{self.name} takes {damage} damage!")
         sleep(0.7)
-        if self.hp < 0:
+        if self.hp <= 0:
             print(f"{self.name} has been defeated!") 
             sleep(0.7)     
 
@@ -436,7 +440,7 @@ class Enemy(Character):
 
 # Forest Wolf
 class Forest_Wolf(Enemy):
-    def __init__(self, name="Forest Wolf", level=1, exp=9, gold=7, hp=32, mp=6, attack_power=7, magic_power=1):
+    def __init__(self, name="Forest Wolf", level=1, exp=22, gold=17, hp=32, mp=6, attack_power=7, magic_power=1):
         super().__init__(name, level, exp, gold, hp, mp, attack_power, magic_power)
         self.skills = {
             "Bite": {"func": self.bite, "mp_cost": 2}
@@ -445,7 +449,7 @@ class Forest_Wolf(Enemy):
     def bite(self, target):
         mp_cost = self.skills["Bite"]["mp_cost"]
         self.mp -= mp_cost
-        print(f"{self.name} uses Bite on {target.name}!")
+        print(f"\n{self.name} uses Bite on {target.name}!")
         damage = round(self.attack_power * random.uniform(1.2, 1.5))
         target.take_damage(damage)
 
@@ -462,7 +466,7 @@ class Forest_Wolf(Enemy):
     
 # Forest Goblin class
 class Forest_Goblin(Enemy):
-    def __init__(self, name="Forest Goblin", level=2, exp=17, gold=20, hp=47, mp=13, attack_power=10, magic_power=9):
+    def __init__(self, name="Forest Goblin", level=2, exp=45, gold=30, hp=47, mp=13, attack_power=10, magic_power=9):
         super().__init__(name, level, exp, gold, hp, mp, attack_power, magic_power)
         self.skills = {
             "Slash": {"func": self.slash, "mp_cost": 2},
@@ -498,5 +502,129 @@ class Forest_Goblin(Enemy):
             attack = random.choice([self.attack, self.attack, self.slash, self.fire])
             attack(target)    
 
+# Party details
+def welcome_message():
+    print("")
+    print("*" * 50)
+    print("Welcome to the RPG! Your adventure awaits!")
+    print("*" * 50)
+    sleep(1)
+    print("\n=== Please name your party members ===")
+
+def get_warrior_name():
+    print("\nChoose a name for your Warrior")
+    while True:
+        warrior_name = input("Warrior: ")
+        if len(warrior_name) > 0:
+            return warrior_name
+        else:
+            print("Please enter a name")
+
+def get_thief_name():
+    print("\nChoose a name for your Thief")
+    while True:
+        thief_name = input("Thief: ")
+        if len(thief_name) > 0:
+            return thief_name
+        else:
+            print("Please enter a name")
+
+def get_white_mage_name():
+    print("\nChoose a name for your White Mage")
+    while True:
+        white_mage_name = input("White Mage: ")
+        if len(white_mage_name) > 0:
+            return white_mage_name
+        else:
+            print("Please enter a name")
+
+def get_black_mage_name():
+    print("\nChoose a name for your Black Mage")
+    while True:
+        black_mage_name = input("Black Mage: ")
+        if len(black_mage_name) > 0:
+            return black_mage_name
+        else:
+            print("Please enter a name")
+
+welcome_message()
+hero_party = [
+    Warrior(get_warrior_name()),
+    Thief(get_thief_name()),
+    White_Mage(get_white_mage_name()),
+    Black_Mage(get_black_mage_name())
+]
+enemies = [Forest_Wolf, Forest_Goblin]
+
+def create_3_enemy_party():
+    return [
+        random.choice(enemies)(),
+        random.choice(enemies)(),
+        random.choice(enemies)()
+    ]
+
+def create_4_enemy_party():
+    return [
+        random.choice(enemies)(),
+        random.choice(enemies)(),
+        random.choice(enemies)(),
+        random.choice(enemies)()
+    ]
+
+def show_enemy_party(enemies):
+    """Text stating which enemies have appeared for battle"""
+    print("*" * 30)
+    print("Enemies have appeared!\nPrepare for battle!\n")
+    sleep(1)
+    for enemy in enemies:
+        print(f"{enemy.name} (HP: ?? | MP: ??)")
+        sleep(0.5)
+    print("*" * 30)
+    print("")
+
+
+def battle(party, enemies):
+    """Turn-based battle logic"""
+    round_num = 1
+
+    while any(hero.is_alive() for hero in party) and any(enemy.is_alive() for enemy in enemies):
+        print(f"\n========== Round {round_num} ==========")
+        sleep(0.3)
+        print("\n----Your party's turn----")
+        sleep(0.5)
+        for hero in party:
+            if hero.is_alive():
+                if isinstance(hero, White_Mage):
+                    hero.choose_action(party, enemies)
+                else:
+                    hero.choose_action(enemies)
+
+        if any(enemy.is_alive() for enemy in enemies):
+            print("\n----Enemy party's turn----")
+            sleep(0.5)
+            for enemy in enemies:
+                if enemy.is_alive():
+                    enemy.attack_at_random(party)
+        # if no enemies are alive, break out of the loop
+        else:
+            break
+        
+        round_num += 1
+
+    if any(hero.is_alive() for hero in party):
+        print("*" * 30)
+        print("Victory!")
+        print("*" * 30)
+        sleep(0.5)
+        Party.gain_gold(enemies)
+        for hero in party:
+            if hero.is_alive():
+                hero.gain_exp(enemies)
+                hero.check_level_up()
+        print("*" * 30)        
+    else:
+        print("*" * 30)
+        print("Your party has been defeated...")
+        print("*" * 30)
         
         
